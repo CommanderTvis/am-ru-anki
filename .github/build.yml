@@ -31,3 +31,8 @@ jobs:
     - name: Build package
       run: |
         python3 ./main.py generate -f cards_config.json ./data
+    - uses: actions/upload-artifact@v3
+      with:
+        name: anki-package
+        path: '*.apkg'
+
