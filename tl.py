@@ -1,29 +1,17 @@
-"""Module for automatic generation of TSV-files for vocabulary cards."""
-
 import re
-from urllib.parse import quote
+import sqlite3
 
-import requests
-from bs4 import BeautifulSoup
-
-
-class TranslatorError(Exception):
-    pass
+conn = sqlite3.connect("hyru.db")
 
 
 def translate(word: str) -> str:
-    url = "https://bararanonline.com/" + quote(word)
-    page = requests.get(url)
-
-    soup = BeautifulSoup(page.content, "html.parser")
-    return soup.find(id="translation")
+    return ", ".join(map(lambda row: row[0],
+                         conn.execute("select name from word where id=("
+                                      "   select idTranslation from translation"
+                                      "   where idWord == (select id from word where name == ?)"
+                                      ")",
+                                      (word,))))
 
 
 def get_translation(words: list[str]) -> list[str]:
-    translations = []
-    for word in words:
-        translations.append(re.sub(r"[а-яА-Я]", "", str(translate(word))))
-
-    return translations
-
-
+    return [re.sub(r"[а-яА-Я]", "", str(translate(word))) for word in words]
