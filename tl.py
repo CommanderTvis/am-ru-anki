@@ -5,12 +5,14 @@ conn = sqlite3.connect("hyru.db")
 
 
 def translate(word: str) -> str:
-    return ", ".join(map(lambda row: row[0],
+    tl = ", ".join(map(lambda row: row[0],
                          conn.execute("select name from word where id=("
                                       "   select idTranslation from translation"
                                       "   where idWord == (select id from word where name == ?)"
                                       ")",
                                       (word,))))
+    print(word, tl)
+    return tl
 
 
 def get_translation(words: list[str]) -> list[str]:
