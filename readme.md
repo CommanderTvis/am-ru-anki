@@ -9,7 +9,7 @@ How it looks:
 
 ## Usage
 
-1. You can download the ready deck with ~300 words, it's an artifact of GitHub Actions workslow https://github.com/CommanderTvis/am-ru-anki/actions.
+1. You can download the ready deck with ~300 words, since it's an artifact of GitHub Actions workslow https://github.com/CommanderTvis/am-ru-anki/actions.
 2. Or add more words in PR changing [words.txt](data/words.txt).
 3. Or add your words locally, then build manually with
 ```python
