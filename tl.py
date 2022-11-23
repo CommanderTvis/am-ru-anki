@@ -6,11 +6,11 @@ conn = sqlite3.connect("hyru.db")
 
 def translate(word: str) -> str:
     tl = ", ".join(map(lambda row: row[0],
-                         conn.execute("select name from word where id IN ("
-                                      "   select idTranslation from translation"
-                                      "   where idWord == (select id from word where name == ?)"
-                                      ")",
-                                      (word,))))
+                       conn.execute("select name from word where id IN ("
+                                    "   select idTranslation from translation"
+                                    "   where idWord == (select id from word where name == ?)"
+                                    ")",
+                                    (word,))))
     print(word, tl)
     return tl
 

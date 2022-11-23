@@ -38,13 +38,9 @@ CARD_MODEL: genanki.Model = genanki.Model(
     fields=[
         # Visible fields.
         {"name": "YourLanguageWord"},
-        {"name": "YourLanguageExplanation"},
         {"name": "LanguageYouLearnWord"},
-        {"name": "LanguageYouLearnPronunciation"},
-        {"name": "LanguageYouLearnExplanation"},
         # Configuration fields.
         {"name": "CardColor"},
-        {"name": "ShowPronunciationInReverse"},
     ],
     templates=[
         {
@@ -62,7 +58,6 @@ CARD_MODEL: genanki.Model = genanki.Model(
                     }
                 </style>
                 <div class="origin word">{{YourLanguageWord}}</div>
-                <div class="origin comment">{{YourLanguageExplanation}}</div>
             ''',
             "afmt": '''
                 <style>
@@ -77,11 +72,8 @@ CARD_MODEL: genanki.Model = genanki.Model(
                     }
                 </style>
                 <div class="origin word">{{YourLanguageWord}}</div>
-                <div class="origin comment">{{YourLanguageExplanation}}</div>
                 <hr>
                 <div class="destination word">{{LanguageYouLearnWord}}</div>
-                <div class="destination fonetic">{{LanguageYouLearnPronunciation}}</div>
-                <div class="destination comment">{{LanguageYouLearnExplanation}}</div>
             ''',
         },
         {
@@ -102,10 +94,6 @@ CARD_MODEL: genanki.Model = genanki.Model(
 				    }
                 </style>
                 <div class="destination word">{{LanguageYouLearnWord}}</div>
-                {{#ShowPronunciationInReverse}}
-                <div class="destination fonetic">{{LanguageYouLearnPronunciation}}</div>
-                {{/ShowPronunciationInReverse}}
-                <div class="destination comment">{{LanguageYouLearnExplanation}}</div>
             ''',
             "afmt": '''
                 <style>
@@ -120,11 +108,8 @@ CARD_MODEL: genanki.Model = genanki.Model(
                     }
                 </style>
                 <div class="destination word">{{LanguageYouLearnWord}}</div>
-                <div class="destination fonetic">{{LanguageYouLearnPronunciation}}</div>
-                <div class="destination comment">{{LanguageYouLearnExplanation}}</div>
                 <hr>
                 <div class="origin word">{{YourLanguageWord}}</div>
-                <div class="origin comment">{{YourLanguageExplanation}}</div>
             ''',
         },
     ],
@@ -133,14 +118,12 @@ CARD_MODEL: genanki.Model = genanki.Model(
 
 
 class AutogenerateBuilder(VocabularyBuilder, object):
-
     def __init__(self):
         super().__init__()
 
     @staticmethod
     def parse_src_to_settings(data_dir: StrOrBytesPath, src) -> dict[str, Any]:
         settings = {"color": src.get("card_color", "#f5f5f5"),
-                    "show_p": "true" if src.get("pronunciation_in_reverse", False) else "",
                     "filename": os.path.join(data_dir, src["file"]),
                     "one_translation": src.get("one_translation", False),
                     "card_properties": src.get("card_properties", None), "tags": []}
@@ -151,12 +134,12 @@ class AutogenerateBuilder(VocabularyBuilder, object):
         return settings
 
     @staticmethod
-    def build_cards_from_words(settings: dict[str, Any]):
+    def build_cards_from_words(settings: dict[str, Any]) -> list[dict[str, Any]]:
         words = scrape_words_from_file(settings["filename"])
         translations = get_translation(words)
 
-        cards = [{"card_id": str(generate_card_uuid(trans)), "ylw": trans, "yle": "",
-                  "lylw": words[idx], "lylp": "", "lyle": ""} for idx, trans in enumerate(translations)]
+        cards = [{"card_id": str(generate_card_uuid(trans)), "ylw": words[idx], "lylw": trans} for idx, trans in
+                 enumerate(translations)]
         for card in cards:
             card["tags"] = settings["tags"]
 
@@ -164,7 +147,7 @@ class AutogenerateBuilder(VocabularyBuilder, object):
 
     @staticmethod
     def build_notes_and_media(settings: dict[str, Any], cards: list[dict[str, Any]]) -> tuple[list[NoteID], list]:
-        notes, media = [], []
+        notes = []
         for card in cards:
             if settings["one_translation"]:
                 card["yle"] = ""
@@ -173,13 +156,13 @@ class AutogenerateBuilder(VocabularyBuilder, object):
                 card["card_id"],
                 model=CARD_MODEL,
                 fields=[
-                    card["ylw"], card["yle"], card["lylw"], card["lylp"],
-                    card["lyle"], settings["color"], settings["show_p"]],
+                    card["ylw"], card["lylw"], settings["color"]],
                 tags=card["tags"])
             notes.append(note)
-        return notes, media
+        return notes, []
 
-    def build_cards(self, data_dir: StrOrBytesPath, src, deck_config, clean_audio: bool = True):
+    def build_cards(self, data_dir: StrOrBytesPath, src, deck_config, clean_audio: bool = True) -> \
+            tuple[list[NoteID], list]:
         # Get data from config.
         settings = self.parse_src_to_settings(data_dir, src)
         builder = self.build_cards_from_words
