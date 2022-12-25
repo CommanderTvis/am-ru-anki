@@ -4,7 +4,12 @@ This script uses [mnemocards](https://github.com/guiferviz/mnemocards) generator
 
 An SQLite dictionary is used. However, it may contain errors, missing or extra words, file an issue if you see a mistake or know a better Russian-Armenian dictionary that can be accessed or parsed freely.
 
-Most words in the default words.txt file are double-checked manually.
+Most words in the default words.txt file are double-checked manually (mistakes in DB were fixed).
+
+words.txt may contain custom translations that do not access DB:
+```
+кошка;կատու
+```
 
 How it looks:
 ![img.png](img.png)
