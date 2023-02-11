@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 from typing import TYPE_CHECKING, AnyStr, Any
 
@@ -138,8 +139,10 @@ class AutogenerateBuilder(VocabularyBuilder, object):
         words = scrape_words_from_file(settings["filename"])
         translations = get_translation(words)
 
-        cards = [{"card_id": str(generate_card_uuid(trans)), "ylw": words[idx], "lylw": trans} for idx, trans in
-                 enumerate(translations)]
+        cards = []
+        for idx, trans in enumerate(translations):
+            if trans is not None:
+                cards.append({"card_id": str(generate_card_uuid(trans)), "ylw": words[idx], "lylw": trans})
         for card in cards:
             card["tags"] = settings["tags"]
 

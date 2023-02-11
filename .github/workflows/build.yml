@@ -30,7 +30,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Build package
       run: |
-        python3 ./main.py generate -f cards_config.json ./data
+        ./main.py generate -f cards_config.json ./data
     - uses: actions/upload-artifact@v3
       with:
         name: anki-package
