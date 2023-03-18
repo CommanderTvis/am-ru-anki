@@ -35,4 +35,3 @@ jobs:
       with:
         name: anki-package
         path: '*.apkg'
-
